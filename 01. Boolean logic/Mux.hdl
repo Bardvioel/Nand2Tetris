@@ -1,0 +1,16 @@
+/** 
+ * Multiplexor:
+ * out = a if sel == 0
+ *       b otherwise
+ */
+
+CHIP Mux {
+    IN a, b, sel;
+    OUT out;
+
+    PARTS:
+    Nand(a=sel, b=sel, out=Nc);
+    Nand(a=a, b=Nc, out=aNandNc);
+    Nand(a=b, b=sel, out=bNandc);
+    Nand(a=aNandNc, b=bNandc, out=out);
+}
