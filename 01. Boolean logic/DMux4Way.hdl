@@ -1,0 +1,40 @@
+/**
+ * 4-way demultiplexor:
+ * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
+ *                {0, in, 0, 0} if sel == 01
+ *                {0, 0, in, 0} if sel == 10
+ *                {0, 0, 0, in} if sel == 11
+ */
+
+CHIP DMux4Way {
+    IN in, sel[2];
+    OUT a, b, c, d;
+    
+    PARTS:
+    // a = in AND (NOT sel[1]) AND (NOT sel[0])
+    Nand(a=sel[1], b=sel[1], out=notSel1);
+    Nand(a=sel[0], b=sel[0], out=notSel0);
+    
+    Nand(a=notSel1, b=notSel0, out=temp1);
+    Nand(a=temp1, b=temp1, out=temp2);
+    Nand(a=in, b=temp2, out=temp3);
+    Nand(a=temp3, b=temp3, out=a);
+    
+    // b = in AND (NOT sel[1]) AND sel[0]
+    Nand(a=notSel1, b=sel[0], out=temp4);
+    Nand(a=temp4, b=temp4, out=temp5);
+    Nand(a=in, b=temp5, out=temp6);
+    Nand(a=temp6, b=temp6, out=b);
+    
+    // c = in AND sel[1] AND (NOT sel[0])
+    Nand(a=sel[1], b=notSel0, out=temp7);
+    Nand(a=temp7, b=temp7, out=temp8);
+    Nand(a=in, b=temp8, out=temp9);
+    Nand(a=temp9, b=temp9, out=c);
+    
+    // d = in AND sel[1] AND sel[0]
+    Nand(a=sel[1], b=sel[0], out=temp10);
+    Nand(a=temp10, b=temp10, out=temp11);
+    Nand(a=in, b=temp11, out=temp12);
+    Nand(a=temp12, b=temp12, out=d);
+}
