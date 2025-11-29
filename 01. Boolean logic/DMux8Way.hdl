@@ -1,0 +1,77 @@
+/**
+ * 8-way demultiplexor:
+ * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
+ *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
+ *                            etc.
+ *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ */
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+    Nand(a=sel[2], b=sel[2], out=notSel2);
+    Nand(a=sel[1], b=sel[1], out=notSel1);
+    Nand(a=sel[0], b=sel[0], out=notSel0);
+    
+    // a = in AND (NOT sel[1]) AND (NOT sel[0])
+    Nand(a=notSel1, b=notSel0, out=temp1);
+    Nand(a=temp1, b=temp1, out=temp2);
+    Nand(a=in, b=temp2, out=temp200);
+    Nand(a=temp200, b=temp200, out=temp20);
+    Nand(a=temp20, b=notSel2, out=temp3);
+    Nand(a=temp3, b=temp3, out=a);
+    
+    // b = in AND (NOT sel[1]) AND sel[0]
+    Nand(a=notSel1, b=sel[0], out=temp4);
+    Nand(a=temp4, b=temp4, out=temp5);
+    Nand(a=in, b=temp5, out=temp600);
+    Nand(a=temp600, b=temp600, out=temp60);
+    Nand(a=temp60, b=notSel2, out=temp6);
+    Nand(a=temp6, b=temp6, out=b);
+    
+    // c = in AND sel[1] AND (NOT sel[0])
+    Nand(a=sel[1], b=notSel0, out=temp7);
+    Nand(a=temp7, b=temp7, out=temp8);
+    Nand(a=in, b=temp8, out=temp900);
+    Nand(a=temp900, b=temp900, out=temp90);
+    Nand(a=temp90, b=notSel2, out=temp9);
+    Nand(a=temp9, b=temp9, out=c);
+    
+    // d = in AND sel[1] AND sel[0]
+    Nand(a=sel[1], b=sel[0], out=temp10);
+    Nand(a=temp10, b=temp10, out=temp11);
+    Nand(a=in, b=temp11, out=temp1200);
+    Nand(a=temp1200, b=temp1200, out=temp120);
+    Nand(a=temp120, b=notSel2, out=temp12);
+    Nand(a=temp12, b=temp12, out=d);
+
+    Nand(a=notSel1, b=notSel0, out=Itemp1);
+    Nand(a=Itemp1, b=Itemp1, out=Itemp2);
+    Nand(a=in, b=Itemp2, out=Itemp200);
+    Nand(a=Itemp200, b=Itemp200, out=Itemp20);
+    Nand(a=Itemp20, b=sel[2], out=Itemp3);
+    Nand(a=Itemp3, b=Itemp3, out=e);
+    
+    Nand(a=notSel1, b=sel[0], out=Itemp4);
+    Nand(a=Itemp4, b=Itemp4, out=Itemp5);
+    Nand(a=in, b=Itemp5, out=Itemp600);
+    Nand(a=Itemp600, b=Itemp600, out=Itemp60);
+    Nand(a=Itemp60, b=sel[2], out=Itemp6);
+    Nand(a=Itemp6, b=Itemp6, out=f);
+    
+    Nand(a=sel[1], b=notSel0, out=Itemp7);
+    Nand(a=Itemp7, b=Itemp7, out=Itemp8);
+    Nand(a=in, b=Itemp8, out=Itemp900);
+    Nand(a=Itemp900, b=Itemp900, out=Itemp90);
+    Nand(a=Itemp90, b=sel[2], out=Itemp9);
+    Nand(a=Itemp9, b=Itemp9, out=g);
+    
+    Nand(a=sel[1], b=sel[0], out=Itemp10);
+    Nand(a=Itemp10, b=Itemp10, out=Itemp11);
+    Nand(a=in, b=Itemp11, out=Itemp1200);
+    Nand(a=Itemp1200, b=Itemp1200, out=Itemp120);
+    Nand(a=Itemp120, b=sel[2], out=Itemp12);
+    Nand(a=Itemp12, b=Itemp12, out=h);
+}
