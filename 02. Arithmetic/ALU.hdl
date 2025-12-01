@@ -1,0 +1,448 @@
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x and y inputs
+// and operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2`s complement addition
+// if (f == 0)  set out = x & y  // bitwise and
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+    PARTS:
+    Not(in=zx, out=Nzx);  //Применяем zx
+    Nand(a=x[0], b=Nzx, out=zx0);
+    Not(in=zx0, out=zx0I);
+    Nand(a=x[1], b=Nzx, out=zx1);
+    Not(in=zx1, out=zx1I);
+    Nand(a=x[2], b=Nzx, out=zx2);
+    Not(in=zx2, out=zx2I);
+    Nand(a=x[3], b=Nzx, out=zx3);
+    Not(in=zx3, out=zx3I);
+    Nand(a=x[4], b=Nzx, out=zx4);
+    Not(in=zx4, out=zx4I);
+    Nand(a=x[5], b=Nzx, out=zx5);
+    Not(in=zx5, out=zx5I);
+    Nand(a=x[6], b=Nzx, out=zx6);
+    Not(in=zx6, out=zx6I);
+    Nand(a=x[7], b=Nzx, out=zx7);
+    Not(in=zx7, out=zx7I);
+    Nand(a=x[8], b=Nzx, out=zx8);
+    Not(in=zx8, out=zx8I);
+    Nand(a=x[9], b=Nzx, out=zx9);
+    Not(in=zx9, out=zx9I);
+    Nand(a=x[10], b=Nzx, out=zx10);
+    Not(in=zx10, out=zx10I);
+    Nand(a=x[11], b=Nzx, out=zx11);
+    Not(in=zx11, out=zx11I);
+    Nand(a=x[12], b=Nzx, out=zx12);
+    Not(in=zx12, out=zx12I);
+    Nand(a=x[13], b=Nzx, out=zx13);
+    Not(in=zx13, out=zx13I);
+    Nand(a=x[14], b=Nzx, out=zx14);
+    Not(in=zx14, out=zx14I);
+    Nand(a=x[15], b=Nzx, out=zx15);
+    Not(in=zx15, out=zx15I);
+
+    Xor(a=zx0I, b=nx, out=rx0);  //Применяем nx
+    Xor(a=zx1I, b=nx, out=rx1);
+    Xor(a=zx2I, b=nx, out=rx2);
+    Xor(a=zx3I, b=nx, out=rx3);
+    Xor(a=zx4I, b=nx, out=rx4);
+    Xor(a=zx5I, b=nx, out=rx5);
+    Xor(a=zx6I, b=nx, out=rx6);
+    Xor(a=zx7I, b=nx, out=rx7);
+    Xor(a=zx8I, b=nx, out=rx8);
+    Xor(a=zx9I, b=nx, out=rx9);
+    Xor(a=zx10I, b=nx, out=rx10);
+    Xor(a=zx11I, b=nx, out=rx11);
+    Xor(a=zx12I, b=nx, out=rx12);
+    Xor(a=zx13I, b=nx, out=rx13);
+    Xor(a=zx14I, b=nx, out=rx14);
+    Xor(a=zx15I, b=nx, out=rx15);
+
+    Not(in=zy, out=Nzy);  //Применяем zy
+    Nand(a=y[0], b=Nzy, out=zy0);
+    Not(in=zy0, out=zy0I);
+    Nand(a=y[1], b=Nzy, out=zy1);
+    Not(in=zy1, out=zy1I);
+    Nand(a=y[2], b=Nzy, out=zy2);
+    Not(in=zy2, out=zy2I);
+    Nand(a=y[3], b=Nzy, out=zy3);
+    Not(in=zy3, out=zy3I);
+    Nand(a=y[4], b=Nzy, out=zy4);
+    Not(in=zy4, out=zy4I);
+    Nand(a=y[5], b=Nzy, out=zy5);
+    Not(in=zy5, out=zy5I);
+    Nand(a=y[6], b=Nzy, out=zy6);
+    Not(in=zy6, out=zy6I);
+    Nand(a=y[7], b=Nzy, out=zy7);
+    Not(in=zy7, out=zy7I);
+    Nand(a=y[8], b=Nzy, out=zy8);
+    Not(in=zy8, out=zy8I);
+    Nand(a=y[9], b=Nzy, out=zy9);
+    Not(in=zy9, out=zy9I);
+    Nand(a=y[10], b=Nzy, out=zy10);
+    Not(in=zy10, out=zy10I);
+    Nand(a=y[11], b=Nzy, out=zy11);
+    Not(in=zy11, out=zy11I);
+    Nand(a=y[12], b=Nzy, out=zy12);
+    Not(in=zy12, out=zy12I);
+    Nand(a=y[13], b=Nzy, out=zy13);
+    Not(in=zy13, out=zy13I);
+    Nand(a=y[14], b=Nzy, out=zy14);
+    Not(in=zy14, out=zy14I);
+    Nand(a=y[15], b=Nzy, out=zy15);
+    Not(in=zy15, out=zy15I);
+
+    Xor(a=zy0I, b=ny, out=ry0);  //Применяем ny
+    Xor(a=zy1I, b=ny, out=ry1);
+    Xor(a=zy2I, b=ny, out=ry2);
+    Xor(a=zy3I, b=ny, out=ry3);
+    Xor(a=zy4I, b=ny, out=ry4);
+    Xor(a=zy5I, b=ny, out=ry5);
+    Xor(a=zy6I, b=ny, out=ry6);
+    Xor(a=zy7I, b=ny, out=ry7);
+    Xor(a=zy8I, b=ny, out=ry8);
+    Xor(a=zy9I, b=ny, out=ry9);
+    Xor(a=zy10I, b=ny, out=ry10);
+    Xor(a=zy11I, b=ny, out=ry11);
+    Xor(a=zy12I, b=ny, out=ry12);
+    Xor(a=zy13I, b=ny, out=ry13);
+    Xor(a=zy14I, b=ny, out=ry14);
+    Xor(a=zy15I, b=ny, out=ry15);
+
+    Nand(a=rx0, b=ry0, out=Nc0);  //Применяем a + b при f = 1
+    Nand(a=Nc0, b=rx0, out=aNandbA0);
+    Nand(a=Nc0, b=ry0, out=aNandbB0);
+    Nand(a=aNandbA0, b=aNandbB0, out=Res0);  //Xor, единицы a+b
+    Not(in=Nc0, out=c0);  //And, десятки a+b
+    Nand(a=rx1, b=ry1, out=Nc1);
+    Nand(a=Nc1, b=rx1, out=aNandbA1);
+    Nand(a=Nc1, b=ry1, out=aNandbB1);
+    Nand(a=aNandbA1, b=aNandbB1, out=sumAB1); //Как HalfAdder rx1 и ry1;
+    Nand(a=sumAB1, b=c0, out=Nandsumabc1);
+    Nand(a=Nandsumabc1, b=sumAB1, out=Nandsumab1);
+    Nand(a=Nandsumabc1, b=c0, out=Nandsumc1);
+    Nand(a=Nandsumab1, b=Nandsumc1, out=Res1);
+    Nand(a=Nandsumabc1, b=Nc1, out=c2); //Or(a=c1, b=carryABC1, out=c2);
+    Nand(a=rx2, b=ry2, out=Nc2);
+    Nand(a=Nc2, b=rx2, out=aNandbA2);
+    Nand(a=Nc2, b=ry2, out=aNandbB2);
+    Nand(a=aNandbA2, b=aNandbB2, out=sumAB2);
+    Nand(a=sumAB2, b=c2, out=Nandsumabc2);
+    Nand(a=Nandsumabc2, b=sumAB2, out=Nandsumab2);
+    Nand(a=Nandsumabc2, b=c2, out=Nandsumc2);
+    Nand(a=Nandsumab2, b=Nandsumc2, out=Res2);
+    Nand(a=Nandsumabc2, b=Nc2, out=c3);
+    Nand(a=rx3, b=ry3, out=Nc3);
+    Nand(a=Nc3, b=rx3, out=aNandbA3);
+    Nand(a=Nc3, b=ry3, out=aNandbB3);
+    Nand(a=aNandbA3, b=aNandbB3, out=sumAB3);
+    Nand(a=sumAB3, b=c3, out=Nandsumabc3);
+    Nand(a=Nandsumabc3, b=sumAB3, out=Nandsumab3);
+    Nand(a=Nandsumabc3, b=c3, out=Nandsumc3);
+    Nand(a=Nandsumab3, b=Nandsumc3, out=Res3);
+    Nand(a=Nandsumabc3, b=Nc3, out=c4);
+    Nand(a=rx4, b=ry4, out=Nc4);
+    Nand(a=Nc4, b=rx4, out=aNandbA4);
+    Nand(a=Nc4, b=ry4, out=aNandbB4);
+    Nand(a=aNandbA4, b=aNandbB4, out=sumAB4);
+    Nand(a=sumAB4, b=c4, out=Nandsumabc4);
+    Nand(a=Nandsumabc4, b=sumAB4, out=Nandsumab4);
+    Nand(a=Nandsumabc4, b=c4, out=Nandsumc4);
+    Nand(a=Nandsumab4, b=Nandsumc4, out=Res4);
+    Nand(a=Nandsumabc4, b=Nc4, out=c5);
+    Nand(a=rx5, b=ry5, out=Nc5);
+    Nand(a=Nc5, b=rx5, out=aNandbA5);
+    Nand(a=Nc5, b=ry5, out=aNandbB5);
+    Nand(a=aNandbA5, b=aNandbB5, out=sumAB5);
+    Nand(a=sumAB5, b=c5, out=Nandsumabc5);
+    Nand(a=Nandsumabc5, b=sumAB5, out=Nandsumab5);
+    Nand(a=Nandsumabc5, b=c5, out=Nandsumc5);
+    Nand(a=Nandsumab5, b=Nandsumc5, out=Res5);
+    Nand(a=Nandsumabc5, b=Nc5, out=c6);
+    Nand(a=rx6, b=ry6, out=Nc6);
+    Nand(a=Nc6, b=rx6, out=aNandbA6);
+    Nand(a=Nc6, b=ry6, out=aNandbB6);
+    Nand(a=aNandbA6, b=aNandbB6, out=sumAB6);
+    Nand(a=sumAB6, b=c6, out=Nandsumabc6);
+    Nand(a=Nandsumabc6, b=sumAB6, out=Nandsumab6);
+    Nand(a=Nandsumabc6, b=c6, out=Nandsumc6);
+    Nand(a=Nandsumab6, b=Nandsumc6, out=Res6);
+    Nand(a=Nandsumabc6, b=Nc6, out=c7);
+    Nand(a=rx7, b=ry7, out=Nc7);
+    Nand(a=Nc7, b=rx7, out=aNandbA7);
+    Nand(a=Nc7, b=ry7, out=aNandbB7);
+    Nand(a=aNandbA7, b=aNandbB7, out=sumAB7);
+    Nand(a=sumAB7, b=c7, out=Nandsumabc7);
+    Nand(a=Nandsumabc7, b=sumAB7, out=Nandsumab7);
+    Nand(a=Nandsumabc7, b=c7, out=Nandsumc7);
+    Nand(a=Nandsumab7, b=Nandsumc7, out=Res7);
+    Nand(a=Nandsumabc7, b=Nc7, out=c8);
+    Nand(a=rx8, b=ry8, out=Nc8);
+    Nand(a=Nc8, b=rx8, out=aNandbA8);
+    Nand(a=Nc8, b=ry8, out=aNandbB8);
+    Nand(a=aNandbA8, b=aNandbB8, out=sumAB8);
+    Nand(a=sumAB8, b=c8, out=Nandsumabc8);
+    Nand(a=Nandsumabc8, b=sumAB8, out=Nandsumab8);
+    Nand(a=Nandsumabc8, b=c8, out=Nandsumc8);
+    Nand(a=Nandsumab8, b=Nandsumc8, out=Res8);
+    Nand(a=Nandsumabc8, b=Nc8, out=c9);
+    Nand(a=rx9, b=ry9, out=Nc9);
+    Nand(a=Nc9, b=rx9, out=aNandbA9);
+    Nand(a=Nc9, b=ry9, out=aNandbB9);
+    Nand(a=aNandbA9, b=aNandbB9, out=sumAB9);
+    Nand(a=sumAB9, b=c9, out=Nandsumabc9);
+    Nand(a=Nandsumabc9, b=sumAB9, out=Nandsumab9);
+    Nand(a=Nandsumabc9, b=c9, out=Nandsumc9);
+    Nand(a=Nandsumab9, b=Nandsumc9, out=Res9);
+    Nand(a=Nandsumabc9, b=Nc9, out=c10);
+    Nand(a=rx10, b=ry10, out=Nc10);
+    Nand(a=Nc10, b=rx10, out=aNandbA10);
+    Nand(a=Nc10, b=ry10, out=aNandbB10);
+    Nand(a=aNandbA10, b=aNandbB10, out=sumAB10);
+    Nand(a=sumAB10, b=c10, out=Nandsumabc10);
+    Nand(a=Nandsumabc10, b=sumAB10, out=Nandsumab10);
+    Nand(a=Nandsumabc10, b=c10, out=Nandsumc10);
+    Nand(a=Nandsumab10, b=Nandsumc10, out=Res10);
+    Nand(a=Nandsumabc10, b=Nc10, out=c11);
+    Nand(a=rx11, b=ry11, out=Nc11);
+    Nand(a=Nc11, b=rx11, out=aNandbA11);
+    Nand(a=Nc11, b=ry11, out=aNandbB11);
+    Nand(a=aNandbA11, b=aNandbB11, out=sumAB11);
+    Nand(a=sumAB11, b=c11, out=Nandsumabc11);
+    Nand(a=Nandsumabc11, b=sumAB11, out=Nandsumab11);
+    Nand(a=Nandsumabc11, b=c11, out=Nandsumc11);
+    Nand(a=Nandsumab11, b=Nandsumc11, out=Res11);
+    Nand(a=Nandsumabc11, b=Nc11, out=c12);
+    Nand(a=rx12, b=ry12, out=Nc12);
+    Nand(a=Nc12, b=rx12, out=aNandbA12);
+    Nand(a=Nc12, b=ry12, out=aNandbB12);
+    Nand(a=aNandbA12, b=aNandbB12, out=sumAB12);
+    Nand(a=sumAB12, b=c12, out=Nandsumabc12);
+    Nand(a=Nandsumabc12, b=sumAB12, out=Nandsumab12);
+    Nand(a=Nandsumabc12, b=c12, out=Nandsumc12);
+    Nand(a=Nandsumab12, b=Nandsumc12, out=Res12);
+    Nand(a=Nandsumabc12, b=Nc12, out=c13);
+    Nand(a=rx13, b=ry13, out=Nc13);
+    Nand(a=Nc13, b=rx13, out=aNandbA13);
+    Nand(a=Nc13, b=ry13, out=aNandbB13);
+    Nand(a=aNandbA13, b=aNandbB13, out=sumAB13);
+    Nand(a=sumAB13, b=c13, out=Nandsumabc13);
+    Nand(a=Nandsumabc13, b=sumAB13, out=Nandsumab13);
+    Nand(a=Nandsumabc13, b=c13, out=Nandsumc13);
+    Nand(a=Nandsumab13, b=Nandsumc13, out=Res13);
+    Nand(a=Nandsumabc13, b=Nc13, out=c14);
+    Nand(a=rx14, b=ry14, out=Nc14);
+    Nand(a=Nc14, b=rx14, out=aNandbA14);
+    Nand(a=Nc14, b=ry14, out=aNandbB14);
+    Nand(a=aNandbA14, b=aNandbB14, out=sumAB14);
+    Nand(a=sumAB14, b=c14, out=Nandsumabc14);
+    Nand(a=Nandsumabc14, b=sumAB14, out=Nandsumab14);
+    Nand(a=Nandsumabc14, b=c14, out=Nandsumc14);
+    Nand(a=Nandsumab14, b=Nandsumc14, out=Res14);
+    Nand(a=Nandsumabc14, b=Nc14, out=c15);
+    Nand(a=rx15, b=ry15, out=Nc15);
+    Nand(a=Nc15, b=rx15, out=aNandbA15);
+    Nand(a=Nc15, b=ry15, out=aNandbB15);
+    Nand(a=aNandbA15, b=aNandbB15, out=sumAB15);
+    Nand(a=sumAB15, b=c15, out=Nandsumabc15);
+    Nand(a=Nandsumabc15, b=sumAB15, out=Nandsumab15);
+    Nand(a=Nandsumabc15, b=c15, out=Nandsumc15);
+    Nand(a=Nandsumab15, b=Nandsumc15, out=Res15);
+
+    Not(in=Nc0, out=Res0I);  //Применяем a & b при f = 0
+    Not(in=Nc1, out=Res1I);
+    Not(in=Nc2, out=Res2I);
+    Not(in=Nc3, out=Res3I);
+    Not(in=Nc4, out=Res4I);
+    Not(in=Nc5, out=Res5I);
+    Not(in=Nc6, out=Res6I);
+    Not(in=Nc7, out=Res7I);
+    Not(in=Nc8, out=Res8I);
+    Not(in=Nc9, out=Res9I);
+    Not(in=Nc10, out=Res10I);
+    Not(in=Nc11, out=Res11I);
+    Not(in=Nc12, out=Res12I);
+    Not(in=Nc13, out=Res13I);
+    Not(in=Nc14, out=Res14I);
+    Not(in=Nc15, out=Res15I);
+    
+    Not(in=f, out=Nf);  //Выбираем a+b / a&b 
+    Nand(a=Res0I, b=Nf, out=aNandNf0);
+    Nand(a=Res0, b=f, out=bNandf0);
+    Nand(a=aNandNf0, b=bNandf0, out=Nout0);
+    Nand(a=Res1I, b=Nf, out=aNandNf1);
+    Nand(a=Res1, b=f, out=bNandf1);
+    Nand(a=aNandNf1, b=bNandf1, out=Nout1);
+    Nand(a=Res2I, b=Nf, out=aNandNf2);
+    Nand(a=Res2, b=f, out=bNandf2);
+    Nand(a=aNandNf2, b=bNandf2, out=Nout2);
+    Nand(a=Res3I, b=Nf, out=aNandNf3);
+    Nand(a=Res3, b=f, out=bNandf3);
+    Nand(a=aNandNf3, b=bNandf3, out=Nout3);
+    Nand(a=Res4I, b=Nf, out=aNandNf4);
+    Nand(a=Res4, b=f, out=bNandf4);
+    Nand(a=aNandNf4, b=bNandf4, out=Nout4);
+    Nand(a=Res5I, b=Nf, out=aNandNf5);
+    Nand(a=Res5, b=f, out=bNandf5);
+    Nand(a=aNandNf5, b=bNandf5, out=Nout5);
+    Nand(a=Res6I, b=Nf, out=aNandNf6);
+    Nand(a=Res6, b=f, out=bNandf6);
+    Nand(a=aNandNf6, b=bNandf6, out=Nout6);
+    Nand(a=Res7I, b=Nf, out=aNandNf7);
+    Nand(a=Res7, b=f, out=bNandf7);
+    Nand(a=aNandNf7, b=bNandf7, out=Nout7);
+    Nand(a=Res8I, b=Nf, out=aNandNf8);
+    Nand(a=Res8, b=f, out=bNandf8);
+    Nand(a=aNandNf8, b=bNandf8, out=Nout8);
+    Nand(a=Res9I, b=Nf, out=aNandNf9);
+    Nand(a=Res9, b=f, out=bNandf9);
+    Nand(a=aNandNf9, b=bNandf9, out=Nout9);
+    Nand(a=Res10I, b=Nf, out=aNandNf10);
+    Nand(a=Res10, b=f, out=bNandf10);
+    Nand(a=aNandNf10, b=bNandf10, out=Nout10);
+    Nand(a=Res11I, b=Nf, out=aNandNf11);
+    Nand(a=Res11, b=f, out=bNandf11);
+    Nand(a=aNandNf11, b=bNandf11, out=Nout11);
+    Nand(a=Res12I, b=Nf, out=aNandNf12);
+    Nand(a=Res12, b=f, out=bNandf12);
+    Nand(a=aNandNf12, b=bNandf12, out=Nout12);
+    Nand(a=Res13I, b=Nf, out=aNandNf13);
+    Nand(a=Res13, b=f, out=bNandf13);
+    Nand(a=aNandNf13, b=bNandf13, out=Nout13);
+    Nand(a=Res14I, b=Nf, out=aNandNf14);
+    Nand(a=Res14, b=f, out=bNandf14);
+    Nand(a=aNandNf14, b=bNandf14, out=Nout14);
+    Nand(a=Res15I, b=Nf, out=aNandNf15);
+    Nand(a=Res15, b=f, out=bNandf15);
+    Nand(a=aNandNf15, b=bNandf15, out=Nout15);
+
+    Nand(a=Nout0, b=no, out=ab0);  //Применяем no
+    Nand(a=ab0, b=Nout0, out=aNandbIA0);
+    Nand(a=ab0, b=no, out=aNandbIB0);
+    Nand(a=aNandbIA0, b=aNandbIB0, out=out[0]);
+    Nand(a=Nout1, b=no, out=ab1);
+    Nand(a=ab1, b=Nout1, out=aNandbIA1);
+    Nand(a=ab1, b=no, out=aNandbIB1);
+    Nand(a=aNandbIA1, b=aNandbIB1, out=out[1]); 
+    Nand(a=Nout2, b=no, out=ab2);
+    Nand(a=ab2, b=Nout2, out=aNandbIA2);
+    Nand(a=ab2, b=no, out=aNandbIB2);
+    Nand(a=aNandbIA2, b=aNandbIB2, out=out[2]); 
+    Nand(a=Nout3, b=no, out=ab3);
+    Nand(a=ab3, b=Nout3, out=aNandbIA3);
+    Nand(a=ab3, b=no, out=aNandbIB3);
+    Nand(a=aNandbIA3, b=aNandbIB3, out=out[3]); 
+    Nand(a=Nout4, b=no, out=ab4);
+    Nand(a=ab4, b=Nout4, out=aNandbIA4);
+    Nand(a=ab4, b=no, out=aNandbIB4);
+    Nand(a=aNandbIA4, b=aNandbIB4, out=out[4]); 
+    Nand(a=Nout5, b=no, out=ab5);
+    Nand(a=ab5, b=Nout5, out=aNandbIA5);
+    Nand(a=ab5, b=no, out=aNandbIB5);
+    Nand(a=aNandbIA5, b=aNandbIB5, out=out[5]); 
+    Nand(a=Nout6, b=no, out=ab6);
+    Nand(a=ab6, b=Nout6, out=aNandbIA6);
+    Nand(a=ab6, b=no, out=aNandbIB6);
+    Nand(a=aNandbIA6, b=aNandbIB6, out=out[6]); 
+    Nand(a=Nout7, b=no, out=ab7);
+    Nand(a=ab7, b=Nout7, out=aNandbIA7);
+    Nand(a=ab7, b=no, out=aNandbIB7);
+    Nand(a=aNandbIA7, b=aNandbIB7, out=out[7]);  
+    Nand(a=Nout8, b=no, out=ab8);
+    Nand(a=ab8, b=Nout8, out=aNandbIA8);
+    Nand(a=ab8, b=no, out=aNandbIB8);
+    Nand(a=aNandbIA8, b=aNandbIB8, out=out[8]); 
+    Nand(a=Nout9, b=no, out=ab9);
+    Nand(a=ab9, b=Nout9, out=aNandbIA9);
+    Nand(a=ab9, b=no, out=aNandbIB9);
+    Nand(a=aNandbIA9, b=aNandbIB9, out=out[9]); 
+    Nand(a=Nout10, b=no, out=ab10);
+    Nand(a=ab10, b=Nout10, out=aNandbIA10);
+    Nand(a=ab10, b=no, out=aNandbIB10);
+    Nand(a=aNandbIA10, b=aNandbIB10, out=out[10]); 
+    Nand(a=Nout11, b=no, out=ab11);
+    Nand(a=ab11, b=Nout11, out=aNandbIA11);
+    Nand(a=ab11, b=no, out=aNandbIB11);
+    Nand(a=aNandbIA11, b=aNandbIB11, out=out[11]); 
+    Nand(a=Nout12, b=no, out=ab12);
+    Nand(a=ab12, b=Nout12, out=aNandbIA12);
+    Nand(a=ab12, b=no, out=aNandbIB12);
+    Nand(a=aNandbIA12, b=aNandbIB12, out=out[12]); 
+    Nand(a=Nout13, b=no, out=ab13);
+    Nand(a=ab13, b=Nout13, out=aNandbIA13);
+    Nand(a=ab13, b=no, out=aNandbIB13);
+    Nand(a=aNandbIA13, b=aNandbIB13, out=out[13]); 
+    Nand(a=Nout14, b=no, out=ab14);
+    Nand(a=ab14, b=Nout14, out=aNandbIA14);
+    Nand(a=ab14, b=no, out=aNandbIB14);
+    Nand(a=aNandbIA14, b=aNandbIB14, out=out[14]); 
+    Nand(a=Nout15, b=no, out=ab15);
+    Nand(a=ab15, b=Nout15, out=aNandbIA15);
+    Nand(a=ab15, b=no, out=aNandbIB15);
+    Nand(a=aNandbIA15, b=aNandbIB15, out=out[15]); 
+    Nand(a=aNandbIA15, b=aNandbIB15, out=g15); 
+    Nand(a=aNandbIA14, b=aNandbIB14, out=g14); 
+    Nand(a=aNandbIA13, b=aNandbIB13, out=g13); 
+    Nand(a=aNandbIA12, b=aNandbIB12, out=g12); 
+    Nand(a=aNandbIA11, b=aNandbIB11, out=g11); 
+    Nand(a=aNandbIA10, b=aNandbIB10, out=g10); 
+    Nand(a=aNandbIA9, b=aNandbIB9, out=g9); 
+    Nand(a=aNandbIA8, b=aNandbIB8, out=g8); 
+    Nand(a=aNandbIA7, b=aNandbIB7, out=g7); 
+    Nand(a=aNandbIA6, b=aNandbIB6, out=g6); 
+    Nand(a=aNandbIA5, b=aNandbIB5, out=g5); 
+    Nand(a=aNandbIA4, b=aNandbIB4, out=g4); 
+    Nand(a=aNandbIA3, b=aNandbIB3, out=g3); 
+    Nand(a=aNandbIA2, b=aNandbIB2, out=g2); 
+    Nand(a=aNandbIA1, b=aNandbIB1, out=g1); 
+	Nand(a=aNandbIA0, b=aNandbIB0, out=g0); 
+
+    Or(a=g0, b=g1, out=g01);  //Ищем единицы
+    Or(a=g01, b=g2, out=g012);
+    Or(a=g012, b=g3, out=g0123);
+    Or(a=g0123, b=g4, out=g01234);
+    Or(a=g01234, b=g5, out=g012345);
+    Or(a=g012345, b=g6, out=g0123456);
+    Or(a=g0123456, b=g7, out=g01234567);
+    Or(a=g01234567, b=g8, out=g01234578);
+    Or(a=g9, b=g10, out=g910);
+    Or(a=g910, b=g11, out=g91011);
+    Or(a=g91011, b=g12, out=g9101112);
+    Or(a=g9101112, b=g13, out=g910111213);
+    Or(a=g910111213, b=g14, out=g91011121314);
+    Or(a=g91011121314, b=g15, out=g9101112131415);
+	Or(a=g01234578, b=g9101112131415, out=r);
+
+    Not(in=r, out=zr);  //Проверяем на отрицательность 
+    Nand(a=g15, b=true, out=g); 
+    Not(in=g, out=ng);
+}
