@@ -1,0 +1,104 @@
+// 7-segments digit display
+//    a
+//   ---
+// f| g |b
+//   ---
+// e|   |c
+//   ---
+//    d
+CHIP DigitDisplay {
+    IN in[4];
+    OUT a, b, c, d, e, f, g;
+    PARTS:
+    //   | 0 1 2 3 4 5 6 7 8 9 A b C d E F
+    // --|--------------------------------
+    // a | 1 0 1 1 0 1 1 1 1 1 1 0 1 0 1 1 0001, 0100, 1011, 1101
+    // b | 1 1 1 1 1 0 0 1 1 1 1 0 0 1 0 0 0101, 0110, 1011, 1100, 1110, 1111
+    // c | 1 1 0 1 1 1 1 1 1 1 1 1 0 1 0 0 0010, 1100, 1110, 1111
+    // d | 1 0 1 1 0 1 1 0 1 1 0 1 1 1 1 0 0001, 0100, 0111, 1010, 1111
+    // e | 1 0 1 0 0 0 1 0 1 0 1 1 1 1 1 1 0001, 0011, 0100, 0101, 0111, 1001
+    // f | 1 0 0 0 1 1 1 0 1 1 1 1 1 0 1 1 0001, 0010, 0011, 0111, 1101
+    // g | 0 0 1 1 1 1 1 0 1 1 1 1 0 1 1 1 0000, 0001, 0111, 1100
+
+
+    Not(in=in[0], out=notin0);
+    Not(in=in[1], out=notin1);
+    Not(in=in[2], out=notin2);
+    Not(in=in[3], out=notin3);
+    
+    And(a=true, b=notin0, out=temp01); //0
+    And(a=true, b=in[0], out=temp02); //1
+
+    And(a=temp01, b=notin1, out=temp03); //00
+    And(a=temp01, b=in[1], out=temp04); //10
+    And(a=temp02, b=notin1, out=temp05); //01
+    And(a=temp02, b=in[1], out=temp06); //11
+
+    And(a=temp03, b=notin2, out=temp07); //000
+    And(a=temp03, b=in[2], out=temp08); //100
+    And(a=temp04, b=notin2, out=temp09); //010
+    And(a=temp04, b=in[2], out=temp010); //110
+    And(a=temp05, b=notin2, out=temp011); //001
+    And(a=temp05, b=in[2], out=temp012); //101
+    And(a=temp06, b=notin2, out=temp013); //011
+    And(a=temp06, b=in[2], out=temp014); //111
+
+    And(a=temp07, b=notin3, out=temp0000);  //0000
+    And(a=temp011, b=notin3, out=temp0001); //0001
+    And(a=temp09, b=notin3, out=temp0010);  //0010
+    And(a=temp013, b=notin3, out=temp0011); //0011
+    And(a=temp07, b=in[3], out=temp1000);   //1000
+    And(a=temp08, b=notin3, out=temp0100);  //0100
+    And(a=temp012, b=notin3, out=temp0101); //0101
+    And(a=temp010, b=notin3, out=temp0110); //0110
+    And(a=temp014, b=notin3, out=temp0111); //0111
+    And(a=temp08, b=in[3], out=temp1100);   //1100
+    And(a=temp011, b=in[3], out=temp1001);  //1001
+    And(a=temp09, b=in[3], out=temp1010);   //1010
+    And(a=temp013, b=in[3], out=temp1011);  //1011
+    And(a=temp012, b=in[3], out=temp1101);  //1101
+    And(a=temp010, b=in[3], out=temp1110);  //1110
+    And(a=temp014, b=in[3], out=temp1111);  //1111
+    
+
+    Or(a=temp0001, b=temp0100, out=tempA00); //A
+    Or(a=tempA00, b=temp1011, out=tempA01);
+    Or(a=tempA01, b=temp1101, out=tempA); //0001, 0100, 1011, 1101
+    Not(in=tempA, out=a);
+
+    Or(a=temp0101, b=temp0110, out=tempB00); //B
+    Or(a=temp1011, b=temp1100, out=tempB01);
+    Or(a=temp1110, b=temp1111, out=tempB02);
+    Or(a=tempB00, b=tempB01, out=tempB1); //0101, 0110, 1011, 1100, 1110, 1111
+    Or(a=tempB1, b=tempB02, out=tempB);
+    Not(in=tempB, out=b);
+
+    Or(a=temp0010, b=temp1100, out=tempC00); //C
+    Or(a=temp1110, b=temp1111, out=tempC01);
+    Or(a=tempC01, b=tempC00, out=tempC); //0010, 1100, 1110, 1111
+    Not(in=tempC, out=c);
+
+    Or(a=temp0001, b=temp0100, out=tempD00); //D
+    Or(a=temp0111, b=temp1010, out=tempD01);
+    Or(a=temp1111, b=tempD00, out=tempD02);
+    Or(a=tempD02, b=tempD01, out=tempD); //0001, 0100, 0111, 1010, 1111
+    Not(in=tempD, out=d);
+
+    Or(a=temp0001, b=temp0011, out=tempE00); //E
+    Or(a=temp0100, b=temp0101, out=tempE01);
+    Or(a=temp0111, b=temp1001, out=tempE02);
+    Or(a=tempE00, b=tempE01, out=tempE1); //0001, 0011, 0100, 0101, 0111, 1001
+    Or(a=tempE1, b=tempE02, out=tempE);
+    Not(in=tempE, out=e);
+
+    Or(a=temp0001, b=temp0010, out=tempF00); //F
+    Or(a=temp0011, b=temp1101, out=tempF01);
+    Or(a=temp0111, b=tempF00, out=tempF02);
+    Or(a=tempF02, b=tempF01, out=tempF); //0001, 0010, 0011, 0111, 1101
+    Not(in=tempF, out=f);
+
+    Or(a=temp0000, b=temp0001, out=tempG00); //G
+    Or(a=temp0111, b=temp1100, out=tempG01);
+    Or(a=tempG01, b=tempG00, out=tempG); //0000, 0001, 0111, 1100
+    Not(in=tempG, out=g);
+}
