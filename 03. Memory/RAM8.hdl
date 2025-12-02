@@ -1,0 +1,40 @@
+CHIP RAM8 {
+    IN in[16], load, address[3];
+    OUT out[16];
+
+    PARTS:
+    //DMux8Way
+    Nand(a=address[2], b=address[2], out=notaddress2);
+    Nand(a=address[1], b=address[1], out=notaddress1);
+    Nand(a=address[0], b=address[0], out=notaddress0);
+    
+    // Первый уровень: разделяем по старшему биту address[2]
+    And(a=load, b=notaddress2, out=R0); // группа a,b,c,d (address[2]=0)
+    And(a=load, b=address[2], out=R1); // группа e,f,g,h (address[2]=1)
+
+    // Второй уровень: разделяем группы по address[1]
+    And(a=R0, b=notaddress1, out=R00); // группа a,b (address[2]=0, address[1]=0)
+    And(a=R0, b=address[1], out=R01); // группа c,d (address[2]=0, address[1]=1)
+    And(a=R1, b=notaddress1, out=R10); // группа e,f (address[2]=1, address[1]=0)
+    And(a=R1, b=address[1], out=R11); // группа g,h (address[2]=1, address[1]=1)
+    // Третий уровень: разделяем по младшему биту address[0]
+    And(a=R00, b=notaddress0, out=a);
+    And(a=R00, b=address[0], out=b);
+    And(a=R01, b=notaddress0, out=c);
+    And(a=R01, b=address[0], out=d);
+    And(a=R10, b=notaddress0, out=e);
+    And(a=R10, b=address[0], out=f);
+    And(a=R11, b=notaddress0, out=g);
+    And(a=R11, b=address[0], out=h);
+
+    Register(in=in, load=a, out=out0);
+    Register(in=in, load=b, out=out1);
+    Register(in=in, load=c, out=out2);
+    Register(in=in, load=d, out=out3);
+    Register(in=in, load=e, out=out4);
+    Register(in=in, load=f, out=out5);
+    Register(in=in, load=g, out=out6);
+    Register(in=in, load=h, out=out7);
+
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address, out=out);
+}
