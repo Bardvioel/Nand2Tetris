@@ -1,0 +1,45 @@
+/**
+ * Memory of 4K registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM4K {
+    IN in[16], load, address[12];
+    OUT out[16];
+
+    PARTS:
+    //DMux8Way
+    Not(in=address[11], out=notaddress11);
+    Not(in=address[10], out=notaddress10);
+    Not(in=address[9], out=notaddress9);
+    // Первый уровень: разделяем по старшему биту address[11]
+    And(a=load, b=notaddress11, out=R0); // группа a,b,c,d (address[11]=0)
+    And(a=load, b=address[11], out=R1); // группа e,f,g,h (address[11]=10)
+    // Второй уровень: разделяем группы по address[10]
+    And(a=R0, b=notaddress10, out=R00); // группа a,b (address[11]=0, address[10]=0)
+    And(a=R0, b=address[10], out=R01); // группа c,d (address[11]=0, address[10]=1)
+    And(a=R1, b=notaddress10, out=R10); // группа e,f (address[11]=1, address[10]=0)
+    And(a=R1, b=address[10], out=R11); // группа g,h (address[11]=1, address[10]=1)
+    // Третий уровень: разделяем по младшему биту address[9]
+    And(a=R00, b=notaddress9, out=a);
+    And(a=R00, b=address[9], out=b);
+    And(a=R01, b=notaddress9, out=c);
+    And(a=R01, b=address[9], out=d);
+    And(a=R10, b=notaddress9, out=e);
+    And(a=R10, b=address[9], out=f);
+    And(a=R11, b=notaddress9, out=g);
+    And(a=R11, b=address[9], out=h);
+
+    RAM512(in=in, load=a, address=address[0..8], out=out0);
+    RAM512(in=in, load=b, address=address[0..8], out=out1);
+    RAM512(in=in, load=c, address=address[0..8], out=out2);
+    RAM512(in=in, load=d, address=address[0..8], out=out3);
+    RAM512(in=in, load=e, address=address[0..8], out=out4);
+    RAM512(in=in, load=f, address=address[0..8], out=out5);
+    RAM512(in=in, load=g, address=address[0..8], out=out6);
+    RAM512(in=in, load=h, address=address[0..8], out=out10);
+
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out10, sel=address[9..11], out=out);
+}
