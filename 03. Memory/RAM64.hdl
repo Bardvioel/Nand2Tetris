@@ -1,0 +1,46 @@
+/**
+ * Memory of 64 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM64 {
+    IN in[16], load, address[6];
+    OUT out[16];
+
+    PARTS:
+
+    //DMux8Way
+    Nand(a=address[5], b=address[5], out=notaddress5);
+    Nand(a=address[4], b=address[4], out=notaddress4);
+    Nand(a=address[3], b=address[3], out=notaddress3);
+    // Первый уровень: разделяем по старшему биту address[5]
+    And(a=load, b=notaddress5, out=R0); // группа a,b,c,d (address[5]=0)
+    And(a=load, b=address[5], out=R1); // группа e,f,g,h (address[5]=4)
+    // Второй уровень: разделяем группы по address[4]
+    And(a=R0, b=notaddress4, out=R00); // группа a,b (address[5]=0, address[4]=0)
+    And(a=R0, b=address[4], out=R01); // группа c,d (address[5]=0, address[4]=1)
+    And(a=R1, b=notaddress4, out=R10); // группа e,f (address[5]=1, address[4]=0)
+    And(a=R1, b=address[4], out=R11); // группа g,h (address[5]=1, address[4]=1)
+    // Третий уровень: разделяем по младшему биту address[3]
+    And(a=R00, b=notaddress3, out=a);
+    And(a=R00, b=address[3], out=b);
+    And(a=R01, b=notaddress3, out=c);
+    And(a=R01, b=address[3], out=d);
+    And(a=R10, b=notaddress3, out=e);
+    And(a=R10, b=address[3], out=f);
+    And(a=R11, b=notaddress3, out=g);
+    And(a=R11, b=address[3], out=h);
+
+    RAM8(in=in, load=a, address=address[0..2], out=out0);
+    RAM8(in=in, load=b, address=address[0..2], out=out1);
+    RAM8(in=in, load=c, address=address[0..2], out=out2);
+    RAM8(in=in, load=d, address=address[0..2], out=out3);
+    RAM8(in=in, load=e, address=address[0..2], out=out4);
+    RAM8(in=in, load=f, address=address[0..2], out=out5);
+    RAM8(in=in, load=g, address=address[0..2], out=out6);
+    RAM8(in=in, load=h, address=address[0..2], out=out7);   
+
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address[3..5], out=out);
+}
