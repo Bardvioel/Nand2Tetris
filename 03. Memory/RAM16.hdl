@@ -1,0 +1,24 @@
+CHIP RAM16K {
+    IN in[16], load, address[14];
+    OUT out[16];
+
+    PARTS:
+    //DMux4Way
+    Not(in=address[13], out=notaddress13);
+    Not(in=address[12], out=notaddress12);
+    // Первый уровень: разделяем по старшему биту address[1]
+    And(a=load, b=notaddress13, out=R0); // группа a,b, (address[2]=0)
+    And(a=load, b=address[13], out=R1); // группа c,d (address[2]=1)
+    // Второй уровень: разделяем группы по address[0]
+    And(a=R0, b=notaddress12, out=a);
+    And(a=R0, b=address[12], out=b);
+    And(a=R1, b=notaddress12, out=c);
+    And(a=R1, b=address[12], out=d);
+
+    RAM4K(in=in, load=a, address=address[0..11], out=out0);
+    RAM4K(in=in, load=b, address=address[0..11], out=out1);
+    RAM4K(in=in, load=c, address=address[0..11], out=out2);
+    RAM4K(in=in, load=d, address=address[0..11], out=out3);
+
+    Mux4Way16(a=out0, b=out1, c=out2, d=out3, sel=address[12..13], out=out);
+}
