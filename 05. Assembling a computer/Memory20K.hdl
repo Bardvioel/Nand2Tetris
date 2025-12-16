@@ -1,0 +1,25 @@
+CHIP Memory20K {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    Not(in=address[13], out=forscr);
+    And(a=address[14], b=forscr, out=ScrCont); // проверяем что сейчас scr
+    And(a=ScrCont, b=load, out=Scrload);
+
+    Not(in=address[14], out=RAM16Cont);
+    And(a=RAM16Cont, b=load, out=RAM16load); // проверяем что сейчас RAM16
+
+    And(a=address[14], b=address[13], out=ad1413);
+    And(a=ad1413, b=address[12], out=RAM4Cont); // проверяем что сейчас RAM4
+    And(a=RAM4Cont, b=load, out=RAM4load);
+
+    RAM16K(in=in, load=RAM16load, address=address[0..13], out=RAM16);
+    Screen(in=in, load=Scrload, address=address[0..12], out=Scr);
+    Keyboard(out=Key);
+    RAM4K(in=in, load=RAM4load, address=address[0..11], out=RAM4);
+
+    Mux16(a=Key, b=Scr, sel=ScrCont, out=KSout);
+    Mux16(a=RAM16, b=KSout, sel=address[14], out=KSR16out);
+    Mux16(a=KSR16out, b=RAM4, sel=RAM4Cont, out=out);
+}
